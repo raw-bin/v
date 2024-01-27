@@ -2672,7 +2672,11 @@ fn (mut g Gen) asm_stmt(stmt ast.AsmStmt) {
 		}
 
 		if !template.is_label {
-			g.write(';')
+			if stmt.arch == .rv64 {
+				g.write('\\n\\t')
+			} else {
+				g.write(';')
+			}
 		}
 		g.writeln('"')
 	}

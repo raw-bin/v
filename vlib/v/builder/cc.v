@@ -332,8 +332,11 @@ fn (mut v Builder) setup_ccompiler_options(ccompiler string) {
 			ccoptions.linker_flags << '-Wl,-export_dynamic' // clang for mac needs export_dynamic instead of -rdynamic
 		} else {
 			if v.pref.ccompiler != 'x86_64-w64-mingw32-gcc' {
-				// the mingw-w64-gcc cross compiler does not support -rdynamic, and windows/wine already does have nicer backtraces
-				ccoptions.linker_flags << '-rdynamic' // needed for nicer symbolic backtraces
+				if !v.pref.is_bare {
+					// the mingw-w64-gcc cross compiler does not support -rdynamic, and windows/wine already does have nicer backtraces
+					// also: some bare builds, eg for riscv64, break with -rdynamic
+					ccoptions.linker_flags << '-rdynamic' // needed for nicer symbolic backtraces
+				}
 			}
 		}
 	}

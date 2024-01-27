@@ -313,7 +313,9 @@ fn (mut v Builder) setup_ccompiler_options(ccompiler string) {
 		if ccoptions.cc != .tcc && builder.current_os == 'macos' {
 			ccoptions.linker_flags << '-Wl,-export_dynamic' // clang for mac needs export_dynamic instead of -rdynamic
 		} else {
-			ccoptions.linker_flags << '-rdynamic' // needed for nicer symbolic backtraces
+			if !v.pref.is_bare {
+				ccoptions.linker_flags << '-rdynamic' // needed for nicer symbolic backtraces
+			}
 		}
 	}
 	if v.pref.os == .freebsd {

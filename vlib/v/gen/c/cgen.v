@@ -3054,9 +3054,11 @@ fn (mut g Gen) asm_stmt(stmt ast.AsmStmt) {
 			g.write(' ')
 		}
 		// swap destination and operands for att syntax
-		if template.args.len != 0 && !template.is_directive {
-			template.args.prepend(template.args.last())
-			template.args.delete(template.args.len - 1)
+		if stmt.arch != .rv64 {
+			if template.args.len != 0 && !template.is_directive {
+				template.args.prepend(template.args.last())
+				template.args.delete(template.args.len - 1)
+			}
 		}
 
 		for i, arg in template.args {

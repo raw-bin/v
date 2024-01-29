@@ -2727,7 +2727,11 @@ fn (mut g Gen) asm_arg(arg ast.AsmArg, stmt ast.AsmStmt) {
 				asm_formatted_name := if name in stmt.global_labels { '%l[${name}]' } else { name }
 				g.write(asm_formatted_name)
 			} else {
-				g.write('%[${name}]')
+				if stmt.arch != .rv64 {
+					g.write('%[${name}]')
+				} else {
+					g.write('${name}')
+				}
 			}
 		}
 		ast.CharLiteral {

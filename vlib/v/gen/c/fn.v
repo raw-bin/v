@@ -367,12 +367,30 @@ fn (mut g Gen) gen_fn_decl(node &ast.FnDecl, skip bool) {
 	if node.params.len == 0 {
 		g.definitions.write_string('void')
 	}
+	mut attrs_done := false
+	mut attr_strs := []string{}
 	if attr := node.attrs.find_first('_linker_section') {
-		g.definitions.writeln(') __attribute__ ((section ("${attr.arg}")));')
+		attr_strs << "section (\"${attr.arg}\")"
+		attrs_done = true
+	}
+	if attr := node.attrs.find_first('_align_function') {
+		attr_strs << "aligned (${attr.arg})"
+		attrs_done = true
+	}
+	if attrs_done == true {
+		g.definitions.write_string(') __attribute__((')
+		for index, s in attr_strs {
+			g.definitions.write_string(s)
+			if index != attr_strs.len - 1 {
+				g.definitions.write_string(', ')
+			}
+		}
+		g.definitions.writeln('));')
 	} else {
 		g.definitions.writeln(');')
 	}
 	g.writeln(') {')
+
 	if is_closure {
 		g.writeln('${cur_closure_ctx}* ${c.closure_ctx} = __CLOSURE_GET_DATA();')
 	}

@@ -1383,7 +1383,7 @@ fn (mut p Parser) asm_stmt(is_top_level bool) ast.AsmStmt {
 						args << p.tok.lit
 						p.next()
 					}
-					.number {
+					.number, .minus {
 						number_lit := p.parse_number_literal()
 						match number_lit {
 							ast.FloatLiteral {
@@ -1398,8 +1398,12 @@ fn (mut p Parser) asm_stmt(is_top_level bool) ast.AsmStmt {
 										pos: number_lit.pos
 									}
 								} else {
-									args << ast.IntegerLiteral{
-										...number_lit
+									if p.tok.kind == .lpar {
+										args << p.asm_addressing_rv64(RV64Displacement.int_as_base_no_pars, number_lit.val)
+									} else {
+										args << ast.IntegerLiteral{
+											...number_lit
+										}
 									}
 								}
 							}
@@ -1434,6 +1438,9 @@ fn (mut p Parser) asm_stmt(is_top_level bool) ast.AsmStmt {
 					}
 					.semicolon {
 						break
+					}
+					.lpar {
+						args << p.asm_addressing_rv64(RV64Displacement.int_as_base_pars, none)
 					}
 					else {
 						p.error('invalid token in assembly block')
@@ -1651,6 +1658,93 @@ fn (mut p Parser) reg_or_alias() ast.AsmArg {
 // 		pos: pos.extend(p.prev_tok.pos())
 // 	}
 // }
+
+enum RV64Displacement {
+	int_as_base_no_pars
+	int_as_base_pars
+}
+
+fn (mut p Parser) asm_addressing_rv64(disp_type RV64Displacement, disp_val ?string) ast.AsmAddressingRV64 {
+	base, displacement := match disp_type {
+		.int_as_base_no_pars {
+			p.check(.lpar)
+			displacement := ast.AsmArg(ast.AsmDisp {
+				val: disp_val or { verror("Expected displacement string") }
+				pos: p.tok.pos()
+			})
+			base := p.reg_or_alias()
+			p.check(.rpar)
+			base, displacement
+		}
+		.int_as_base_pars {
+			p.check(.lpar)
+			first_number_lit := p.parse_number_literal()
+			first_number := match first_number_lit {
+				ast.IntegerLiteral {
+					ast.IntegerLiteral { ...first_number_lit }
+				}
+				else {
+					verror("Expected displacement integer")
+				}
+			}
+			match p.tok.kind {
+				.lpar {
+					p.next()
+					base := p.reg_or_alias()
+					p.check(.rpar)
+					displacement := ast.AsmArg(ast.AsmDisp {
+						val: '(' + first_number.val + ')'
+						pos: first_number.pos
+					})
+					base, displacement
+				}
+				.rpar {
+					displacement := ast.AsmArg(ast.AsmDisp {
+						val: '(' + first_number.val + ')'
+						pos: first_number.pos
+					})
+					p.next()
+					p.check(.lpar)
+					base := p.reg_or_alias()
+					p.check(.rpar)
+					base, displacement
+				}
+				.mul, .plus, .minus {
+					operator := p.tok.kind.str()
+					p.next()
+					second_number_lit := p.parse_number_literal()
+					second_number := match second_number_lit {
+						ast.IntegerLiteral {
+							ast.IntegerLiteral { ...second_number_lit }
+						}
+						else {
+							verror("Expected displacement integer")
+						}
+					}
+					displacement := ast.AsmArg(ast.AsmDisp {
+						val: '(' + first_number.val + ' ' + operator + ' ' + second_number.val + ')'
+						pos: second_number.pos
+					})
+					p.check(.rpar)
+					p.check(.lpar)
+					base := p.reg_or_alias()
+					p.check(.rpar)
+					base, displacement
+				}
+				else {
+					verror("Unsupported or invalid RV64 inline assembly")
+				}
+			}
+		}
+	}
+	pos := p.tok.pos()
+	return ast.AsmAddressingRV64{
+		mode: .base_plus_displacement
+		displacement: displacement
+		base: base
+		pos: pos.extend(p.prev_tok.pos())
+	}
+}
 
 fn (mut p Parser) asm_addressing() ast.AsmAddressing {
 	pos := p.tok.pos()

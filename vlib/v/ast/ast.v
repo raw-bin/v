@@ -1672,6 +1672,7 @@ pub mut:
 
 // [eax+5] | j | displacement literal (e.g. 123 in [rax + 123] ) | eax | true | `a` | 0.594 | 123 | label_name
 pub type AsmArg = AsmAddressing
+	| AsmAddressingRV64
 	| AsmAlias
 	| AsmDisp
 	| AsmRegister
@@ -1713,6 +1714,15 @@ pub mut:
 	index        AsmArg // gpr
 }
 
+pub struct AsmAddressingRV64 {
+pub:
+	mode AddressingModeRV64
+	pos  token.Pos
+pub mut:
+	displacement AsmArg // 8, 16 or 32 bit literal value
+	base         AsmArg // gpr
+}
+
 // addressing modes:
 pub enum AddressingMode {
 	invalid
@@ -1723,6 +1733,11 @@ pub enum AddressingMode {
 	base_plus_index_plus_displacement             // base + (index ∗ scale) + displacement
 	base_plus_index_times_scale_plus_displacement // base + index + displacement
 	rip_plus_displacement                         // rip + displacement
+}
+
+pub enum AddressingModeRV64 {
+	invalid
+	base_plus_displacement // base + displacement
 }
 
 pub struct AsmClobbered {

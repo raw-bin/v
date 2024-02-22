@@ -3237,6 +3237,21 @@ fn (mut g Gen) asm_arg(arg ast.AsmArg, stmt ast.AsmStmt) {
 				}
 			}
 		}
+		ast.AsmAddressingRV64 {
+			base := arg.base
+			displacement := arg.displacement
+			match arg.mode {
+				.base_plus_displacement {
+					g.asm_arg(displacement, stmt)
+					g.write('(')
+					g.asm_arg(base, stmt)
+					g.write(')')
+				}
+				.invalid {
+					g.error('invalid addressing mode', arg.pos)
+				}
+			}
+		}
 		ast.AsmDisp {
 			g.write(arg.val)
 		}

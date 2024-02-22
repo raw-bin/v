@@ -2548,6 +2548,10 @@ fn (mut c Checker) asm_arg(arg ast.AsmArg, stmt ast.AsmStmt, aliases []string) {
 			c.asm_arg(arg.base, stmt, aliases)
 			c.asm_arg(arg.index, stmt, aliases)
 		}
+		ast.AsmAddressingRV64 {
+			c.asm_arg(arg.displacement, stmt, aliases)
+			c.asm_arg(arg.base, stmt, aliases)
+		}
 		ast.BoolLiteral {} // all of these are guaranteed to be correct.
 		ast.FloatLiteral {}
 		ast.CharLiteral {}

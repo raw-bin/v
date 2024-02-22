@@ -61,6 +61,14 @@ fn (mut f Fmt) asm_arg(arg ast.AsmArg) {
 		string {
 			f.string_literal(ast.StringLiteral{ val: arg })
 		}
+		ast.AsmAddressingRV64 {
+			base := arg.base
+			displacement := arg.displacement
+			f.asm_arg(displacement)
+			f.write('(')
+			f.asm_arg(base)
+			f.write(')')
+		}
 		ast.AsmAddressing {
 			if arg.segment != '' {
 				f.write(arg.segment)

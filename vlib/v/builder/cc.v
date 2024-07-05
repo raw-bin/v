@@ -329,7 +329,9 @@ fn (mut v Builder) setup_ccompiler_options(ccompiler string) {
 	}
 	if ccoptions.debug_mode && current_os != 'windows' && v.pref.build_mode != .build_module {
 		if ccoptions.cc != .tcc && current_os == 'macos' {
-			ccoptions.linker_flags << '-Wl,-export_dynamic' // clang for mac needs export_dynamic instead of -rdynamic
+			if !v.pref.is_bare {
+				ccoptions.linker_flags << '-Wl,-export_dynamic' // clang for mac needs export_dynamic instead of -rdynamic
+			}
 		} else {
 			if v.pref.ccompiler != 'x86_64-w64-mingw32-gcc' {
 				if !v.pref.is_bare {

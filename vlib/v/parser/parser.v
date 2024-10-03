@@ -1669,7 +1669,7 @@ fn (mut p Parser) asm_addressing_rv64(disp_type RV64Displacement, disp_val ?stri
 		.int_as_base_no_pars {
 			p.check(.lpar)
 			displacement := ast.AsmArg(ast.AsmDisp {
-				val: disp_val or { verror("Expected displacement string") }
+				val: disp_val or { "Expected displacement string" }
 				pos: p.tok.pos()
 			})
 			base := p.reg_or_alias()
@@ -1684,7 +1684,7 @@ fn (mut p Parser) asm_addressing_rv64(disp_type RV64Displacement, disp_val ?stri
 					ast.IntegerLiteral { ...first_number_lit }
 				}
 				else {
-					verror("Expected displacement integer")
+					util.verror("parser error", "Expected displacement integer")
 				}
 			}
 			match p.tok.kind {
@@ -1718,7 +1718,7 @@ fn (mut p Parser) asm_addressing_rv64(disp_type RV64Displacement, disp_val ?stri
 							ast.IntegerLiteral { ...second_number_lit }
 						}
 						else {
-							verror("Expected displacement integer")
+							util.verror("parser error", "Expected displacement integer")
 						}
 					}
 					displacement := ast.AsmArg(ast.AsmDisp {
@@ -1732,7 +1732,7 @@ fn (mut p Parser) asm_addressing_rv64(disp_type RV64Displacement, disp_val ?stri
 					base, displacement
 				}
 				else {
-					verror("Unsupported or invalid RV64 inline assembly")
+					util.verror("parser error", "Unsupported or invalid RV64 inline assembly")
 				}
 			}
 		}

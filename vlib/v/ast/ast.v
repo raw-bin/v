@@ -1949,10 +1949,14 @@ pub const arm_with_number_register_list = {
 
 pub const riscv_no_number_register_list = ['zero', 'ra', 'sp', 'gp', 'tp']
 pub const riscv_with_number_register_list = {
-	'x#': 32
-	't#': 7  // t0-t6 (temporary registers)
-	's#': 12
-	'a#': 8
+	'x#':  32 // x0-x31 (raw register names)
+	't#':  7  // t0-t6 (temporary registers)
+	's#':  12 // s0-s11 (saved registers)
+	'a#':  8  // a0-a7 (argument registers)
+	'f#':  32 // f0-f31 (floating-point registers)
+	'ft#': 12 // ft0-ft11 (FP temporaries)
+	'fs#': 12 // fs0-fs11 (FP saved)
+	'fa#': 8  // fa0-fa7 (FP arguments)
 }
 
 pub const s390x_no_number_register_list = []string{}

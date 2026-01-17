@@ -1950,7 +1950,7 @@ pub const arm_with_number_register_list = {
 pub const riscv_no_number_register_list = ['zero', 'ra', 'sp', 'gp', 'tp']
 pub const riscv_with_number_register_list = {
 	'x#': 32
-	't#': 3
+	't#': 7  // t0-t6 (temporary registers)
 	's#': 12
 	'a#': 8
 }

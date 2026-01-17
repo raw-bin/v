@@ -148,7 +148,7 @@ fn (mut p Parser) asm_stmt(is_top_level bool) ast.AsmStmt {
 						args << p.tok.lit
 						p.next()
 					}
-					.number {
+					.minus, .number {
 						number_lit := p.parse_number_literal()
 						match number_lit {
 							ast.FloatLiteral {

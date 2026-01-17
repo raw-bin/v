@@ -407,3 +407,28 @@ fn test_high_fp_saved() {
 	}
 	assert result == 4.5
 }
+
+// Test: Negative immediate values
+fn test_negative_immediates() {
+	mut a := i64(10)
+	asm rv64 {
+		addi a, a, -3
+		; +r (a)
+	}
+	assert a == 7
+
+	mut b := i64(0)
+	asm rv64 {
+		li b, -42
+		; +r (b)
+	}
+	assert b == -42
+
+	mut c := i64(100)
+	asm rv64 {
+		addi c, c, -50
+		addi c, c, -25
+		; +r (c)
+	}
+	assert c == 25
+}

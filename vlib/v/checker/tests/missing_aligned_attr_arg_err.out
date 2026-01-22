@@ -1,0 +1,5 @@
+vlib/v/checker/tests/missing_aligned_attr_arg_err.vv:1:1: error: missing argument for @[aligned] attribute
+    1 | @[aligned]
+      | ~~~~~~~~~~
+    2 | fn foo() int {
+    3 |     return 42

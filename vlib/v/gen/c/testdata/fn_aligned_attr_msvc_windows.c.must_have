@@ -1,0 +1,3 @@
+__declspec(align (16)) VV_LOC int main__aligned_fn_16(void)
+__declspec(align (32)) VV_LOC int main__aligned_fn_32(void)
+__declspec(align (64)) VV_LOC int main__aligned_and_exported(void)

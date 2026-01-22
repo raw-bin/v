@@ -1,0 +1,4 @@
+@[aligned]
+fn foo() int {
+	return 42
+}

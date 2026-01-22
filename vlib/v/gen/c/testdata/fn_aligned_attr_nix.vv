@@ -1,0 +1,24 @@
+// Test @[aligned: X] attribute on functions.
+// This ensures that functions can be aligned to specific byte boundaries.
+
+@[aligned: 16]
+fn aligned_fn_16() int {
+	return 16
+}
+
+@[aligned: 32]
+fn aligned_fn_32() int {
+	return 32
+}
+
+@[aligned: 64]
+@[export: 'exported_aligned']
+fn aligned_and_exported() int {
+	return 64
+}
+
+fn main() {
+	println(aligned_fn_16())
+	println(aligned_fn_32())
+	println(aligned_and_exported())
+}

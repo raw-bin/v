@@ -1,0 +1,3 @@
+__attribute__((aligned (16))) VV_LOC int main__aligned_fn_16(void)
+__attribute__((aligned (32))) VV_LOC int main__aligned_fn_32(void)
+__attribute__((aligned (64))) VV_LOC int main__aligned_and_exported(void)

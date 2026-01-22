@@ -3055,6 +3055,16 @@ fn (mut g Gen) write_fn_attrs(attrs []ast.Attr) string {
 			'_naked' {
 				g.write('__attribute__((naked)) ')
 			}
+			'aligned' {
+				// The aligned attribute specifies a minimum alignment for the function in bytes.
+				// On MSVC, use __declspec(align(X)), on GCC/clang use __attribute__((aligned(X))).
+				attr_arg := if attr.arg == '' { '' } else { ' (${attr.arg})' }
+				if g.is_cc_msvc {
+					g.write('__declspec(align${attr_arg}) ')
+				} else {
+					g.write('__attribute__((aligned${attr_arg})) ')
+				}
+			}
 			'windows_stdcall' {
 				// windows attributes (msvc/mingw)
 				// prefixed by windows to indicate they're for advanced users only and not really supported by V.

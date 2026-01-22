@@ -432,3 +432,108 @@ fn test_negative_immediates() {
 	}
 	assert c == 25
 }
+
+// Test: Native RISC-V memory addressing syntax offset(register)
+// This is the standard RISC-V assembly syntax: ld/sd rd, offset(rs)
+fn test_native_memory_addressing() {
+	val := i64(42)
+	ptr := &val
+	mut result := i64(0)
+	asm rv64 {
+		ld t0, 0(ptr)
+		mv result, t0
+		; +r (result)
+		; r (ptr)
+		; t0
+	}
+	assert result == 42
+}
+
+// Test: Native memory addressing with positive offset
+fn test_native_positive_offset() {
+	arr := [i64(10), i64(20), i64(30)]
+	ptr := arr.data
+	mut val := i64(0)
+	asm rv64 {
+		ld t0, 8(ptr)
+		mv val, t0
+		; +r (val)
+		; r (ptr)
+		; t0
+	}
+	assert val == 20
+}
+
+// Test: Native memory addressing with negative offset
+fn test_native_negative_offset() {
+	arr := [i64(100), i64(200), i64(300)]
+	// Point to the second element (offset 8 bytes from start)
+	ptr := unsafe { &i64(arr.data)[1] }
+	mut val1 := i64(0)
+	mut val2 := i64(0)
+	asm rv64 {
+		ld t0, -8(ptr)
+		ld t1, 8(ptr)
+		mv val1, t0
+		mv val2, t1
+		; +r (val1)
+		  +r (val2)
+		; r (ptr)
+		; t0 t1
+	}
+	assert val1 == 100 // element before ptr (index 0)
+	assert val2 == 300 // element after ptr (index 2)
+}
+
+// Test: Store with native syntax
+fn test_native_store() {
+	mut arr := [i64(0), i64(0), i64(0)]
+	ptr := arr.data
+	asm rv64 {
+		li t0, 111
+		li t1, 222
+		li t2, 333
+		sd t0, 0(ptr)
+		sd t1, 8(ptr)
+		sd t2, 16(ptr)
+		; ; r (ptr)
+		; memory
+		  t0 t1 t2
+	}
+	assert arr[0] == 111
+	assert arr[1] == 222
+	assert arr[2] == 333
+}
+
+// Test: Store with negative offset using native syntax
+fn test_native_store_negative_offset() {
+	mut arr := [i64(0), i64(0), i64(0)]
+	// Point to the last element (index 2)
+	ptr := unsafe { &i64(arr.data)[2] }
+	asm rv64 {
+		li t0, 999
+		sd t0, -16(ptr)
+		; ; r (ptr)
+		; memory
+		  t0
+	}
+	assert arr[0] == 999
+}
+
+// Test: Mixed bracket and native syntax in same function
+fn test_mixed_addressing_syntax() {
+	mut arr := [i64(1), i64(2), i64(3), i64(4)]
+	ptr := arr.data
+	asm rv64 {
+		// Load using bracket syntax
+		ld t0, [ptr]
+		ld t1, [ptr + 8]
+		add t2, t0, t1
+		// Store using native syntax
+		sd t2, 16(ptr)
+		; ; r (ptr)
+		; memory
+		  t0 t1 t2
+	}
+	assert arr[2] == 3 // 1 + 2 = 3
+}

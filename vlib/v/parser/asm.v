@@ -157,7 +157,22 @@ fn (mut p Parser) asm_stmt(is_top_level bool) ast.AsmStmt {
 								}
 							}
 							ast.IntegerLiteral {
-								if is_directive {
+								// RISC-V memory addressing: offset(register) e.g., 0(sp), -8(sp), 16(a0)
+								if arch in [.rv32, .rv64] && p.tok.kind == .lpar {
+									disp_pos := number_lit.pos
+									p.next() // consume '('
+									base := p.reg_or_alias()
+									p.check(.rpar) // consume ')'
+									args << ast.AsmAddressing{
+										mode: .base_plus_displacement
+										displacement: ast.AsmDisp{
+											val: number_lit.val
+											pos: number_lit.pos
+										}
+										base: base
+										pos: disp_pos.extend(p.prev_tok.pos())
+									}
+								} else if is_directive {
 									args << ast.AsmDisp{
 										val: number_lit.val
 										pos: number_lit.pos

@@ -3055,6 +3055,9 @@ fn (mut g Gen) write_fn_attrs(attrs []ast.Attr) string {
 			'_naked' {
 				g.write('__attribute__((naked)) ')
 			}
+			'_used' {
+				fn_attrs += '__attribute__((used)) '
+			}
 			'aligned' {
 				// The aligned attribute specifies a minimum alignment for the function in bytes.
 				// On MSVC, use __declspec(align(X)), on GCC/clang use __attribute__((aligned(X))).
